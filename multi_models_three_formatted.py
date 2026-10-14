@@ -1,6 +1,3 @@
-# Live animal detection with three models and a 2-of-3 vote.
-
-
 # ------------------------------------------------------------
 # IMPORTS
 # ------------------------------------------------------------
@@ -73,13 +70,11 @@ IOU_THRESHOLD = 0.5
 MAX_DETECTIONS = 100
 REQUIRED_VOTES = 2
 
-
 # ------------------------------------------------------------
 # IMAGE QUALITY
 # ------------------------------------------------------------
 
 BLUR_THRESHOLD = 25.0
-
 
 # ------------------------------------------------------------
 # SAVE SETTINGS
@@ -87,14 +82,12 @@ BLUR_THRESHOLD = 25.0
 
 SAVE_INTERVAL = 2.0
 
-
 # ------------------------------------------------------------
 # TEMPERATURE SETTINGS
 # ------------------------------------------------------------
 
 MAX_TEMP = 70.0
 TEMP_CHECK_INTERVAL = 4.0
-
 
 # ------------------------------------------------------------
 # GLOBAL EVENTS
@@ -104,13 +97,11 @@ capture_stop_event = threading.Event()
 thermal_stop_event = threading.Event()
 total_saved = 0
 
-
 # ------------------------------------------------------------
 # COCO ANIMAL CLASSES
 # ------------------------------------------------------------
 
 COCO_ANIMALS = {'bird', 'cat', 'dog', 'horse', 'sheep', 'cow', 'elephant', 'bear', 'zebra', 'giraffe'}
-
 
 # ------------------------------------------------------------
 # IMAGENET ANIMAL KEYWORDS
@@ -134,7 +125,6 @@ ANIMAL_KEYWORDS = {'dog', 'terrier', 'retriever', 'shepherd', 'spaniel', 'poodle
     'salamander', 'newt', 'fish', 'shark', 'ray', 'eel', 'goldfish', 'salmon', 'trout', 'tuna',
     'crab', 'lobster', 'shrimp', 'spider', 'scorpion', 'butterfly', 'bee', 'beetle'}
 
-
 # ------------------------------------------------------------
 # CPU TEMPERATURE
 # ------------------------------------------------------------
@@ -146,7 +136,6 @@ def get_cpu_temperature():
             return temperature / 1000.0
     except Exception:
         return None
-
 
 # ------------------------------------------------------------
 # TEMPERATURE MONITOR
@@ -170,7 +159,6 @@ def temperature_monitor():
             break
         thermal_stop_event.wait(TEMP_CHECK_INTERVAL)
 
-
 # ------------------------------------------------------------
 # KEYBOARD CONTROL
 # ------------------------------------------------------------
@@ -191,7 +179,6 @@ def keyboard_monitor():
             capture_stop_event.set()
             break
 
-
 # ------------------------------------------------------------
 # IMAGENET ANIMAL CHECK
 # ------------------------------------------------------------
@@ -202,7 +189,6 @@ def is_animal_imagenet_class(class_name):
         if keyword in class_name:
             return True
     return False
-
 
 # ------------------------------------------------------------
 # LOAD RETINANET
@@ -219,9 +205,8 @@ def load_retinanet():
     print('RetinaNet loaded.')
     return model
 
-
 # ------------------------------------------------------------
-# LOAD FASTER R-CNN
+# LOAD R-CNN
 # ------------------------------------------------------------
 
 def load_faster_rcnn():
@@ -233,7 +218,6 @@ def load_faster_rcnn():
     categories = weights.meta['categories']
     print('Faster R-CNN loaded.')
     return (model, categories)
-
 
 # ------------------------------------------------------------
 # LOAD MOBILENET V3
@@ -250,7 +234,6 @@ def load_mobilenet():
     print('MobileNetV3 loaded.')
     return (model, preprocess, categories)
 
-
 # ------------------------------------------------------------
 # RETINANET DETECTION
 # ------------------------------------------------------------
@@ -266,7 +249,6 @@ def run_retinanet(model, image_rgb):
             best_box = box
     detected = best_box is not None
     return (detected, best_score, best_box)
-
 
 # ------------------------------------------------------------
 # FASTER R-CNN DETECTION
@@ -297,7 +279,6 @@ def run_faster_rcnn(model, categories, image_rgb):
     detected = best_label is not None
     return (detected, best_score, best_label, best_box)
 
-
 # ------------------------------------------------------------
 # MOBILENET DETECTION
 # ------------------------------------------------------------
@@ -314,7 +295,6 @@ def run_mobilenet(model, preprocess, categories, image_rgb):
             animal_probability += float(probabilities[index].item())
     detected = animal_probability >= MOBILENET_ANIMAL_THRESHOLD
     return (detected, animal_probability)
-
 
 # ------------------------------------------------------------
 # THREE-MODEL DETECTION
@@ -344,7 +324,6 @@ def detect_animal(retinanet_model, faster_model, faster_categories, mobilenet_mo
     return (final_detected, votes, selected_box, retina_yes, retina_score, faster_yes, faster_score,
         faster_label, mobile_yes, mobile_probability)
 
-
 # ------------------------------------------------------------
 # SCALE DETECTION BOX
 # ------------------------------------------------------------
@@ -356,7 +335,6 @@ def scale_box_to_main(box):
     y_scale = MAIN_HEIGHT / DETECT_HEIGHT
     x1, y1, x2, y2 = box
     return (int(x1 * x_scale), int(y1 * y_scale), int(x2 * x_scale), int(y2 * y_scale))
-
 
 # ------------------------------------------------------------
 # EXTRACT ROI
@@ -378,7 +356,6 @@ def extract_roi(frame, box):
         return frame
     return roi
 
-
 # ------------------------------------------------------------
 # SHARPNESS CHECK
 # ------------------------------------------------------------
@@ -392,7 +369,6 @@ def calculate_sharpness(frame, box):
         gray = cv2.cvtColor(roi, cv2.COLOR_RGB2GRAY)
     sharpness = cv2.Laplacian(gray, cv2.CV_64F).var()
     return float(sharpness)
-
 
 # ------------------------------------------------------------
 # SAVE CURRENT FRAME
@@ -414,7 +390,6 @@ def save_frame(frame, votes, sharpness, recognition_time):
         return (save_path, recognition_to_save)
     return (None, None)
 
-
 # ------------------------------------------------------------
 # CLOSE CAMERA
 # ------------------------------------------------------------
@@ -434,7 +409,6 @@ def close_camera(camera):
         camera.close()
     except Exception:
         pass
-
 
 # ------------------------------------------------------------
 # MAIN PROGRAM
